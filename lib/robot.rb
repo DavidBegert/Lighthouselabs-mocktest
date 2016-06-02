@@ -2,13 +2,30 @@ class Robot
   attr_reader :position, :items, :health, :shield
   attr_accessor :equipped_weapon
 
+  @@robots = []
+
   def initialize
     @position = [0,0]
     @items = []
     @health = 100
     @equipped_weapon = nil
     @shield = 50
+    @@robots << self
   end
+
+  class << self
+
+    def robots
+      @@robots
+    end
+
+    def in_position(x,y)
+      @@robots.select do |robot|
+        robot.position == [x,y]
+      end
+    end
+  end
+  
 
   def move_left
     @position[0] -= 1
@@ -85,24 +102,24 @@ class Robot
 
   end
 
-  def nearbyx?(other_robot)
+  def can_hit_x?(other_robot)
     if equipped_weapon.is_a?(Grenade)
-      (other_robot.position[0] - self.position[0]).abs == 2 && (other_robot.position[1] == self.position[1])  #would be able to do equipped_weapon.range but some weapons dont have range yet
+      (other_robot.position[0] - self.position[0]).abs <= 2 && (other_robot.position[1] == self.position[1])  #would be able to do equipped_weapon.range but some weapons dont have range yet
     else
-      (other_robot.position[0] - self.position[0]).abs == 2 && (other_robot.position[1] == self.position[1]) #y do i even need self. here?
+      (other_robot.position[0] - self.position[0]).abs <= 1 && (other_robot.position[1] == self.position[1]) #y do i even need self. here?
     end
   end
 
-  def nearbyy?(other_robot)
+  def can_hit_y?(other_robot)
     if equipped_weapon.is_a?(Grenade)
-      (other_robot.position[1] - self.position[1]).abs == 2 && (other_robot.position[0] == self.position[0])
+      (other_robot.position[1] - self.position[1]).abs <= 2 && (other_robot.position[0] == self.position[0])
     else
-      (other_robot.position[1] - self.position[1]).abs == 1 && (other_robot.position[0] == self.position[0])
+      (other_robot.position[1] - self.position[1]).abs <= 1 && (other_robot.position[0] == self.position[0])
     end
   end
 
   def attack(enemy_robot)
-    if nearbyx?(enemy_robot) || nearbyy?(enemy_robot)
+    if can_hit_x?(enemy_robot) || can_hit_y?(enemy_robot)
       if equipped_weapon.is_a?(Weapon)      #could just be equipped_weapon but this is clearer
         equipped_weapon.hit(enemy_robot)
         self.equipped_weapon = nil
@@ -120,6 +137,26 @@ class Robot
       enemy.wound(5)
     end
   end
+
+  def scan
+    @@robots.select do |robot|
+      ( (robot.position[0] - self.position[0]).abs == 1 && (robot.position[1] == self.position[1]) ) ||
+      ( (robot.position[1] - self.position[1]).abs == 1 && (robot.position[0] == self.position[0]) )
+    end
+  end
+
+  def destroy_shields
+    @shield = 0
+  end
+
+  def xplode(dmg)
+    arr_of_robots_hit = self.scan << self
+    arr_of_robots_hit.each do |robot|
+      robot.destroy_shields
+      robot.wound(dmg)
+    end
+  end
+
 
 
 end
