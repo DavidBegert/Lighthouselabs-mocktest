@@ -29,6 +29,8 @@ class Robot
   def pick_up(item)
     if item.is_a?(BoxOfBolts) && health <= 80 && items_weight + item.weight <= 250
       item.feed(self)
+    elsif item.is_a?(Battery) && shield <= 30 && items_weight + item.weight <= 250
+      item.recharge(self)
     else
       if items_weight + item.weight <= 250
         self.equipped_weapon = item if item.is_a?(Weapon)
@@ -62,6 +64,14 @@ class Robot
       @health += amount
     else
       @health = 100
+    end
+  end
+
+  def charge(amount)
+    if shield + amount < 50
+      @shield += amount
+    else
+      @shield = 50
     end
   end
 

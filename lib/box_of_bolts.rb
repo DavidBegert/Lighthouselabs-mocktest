@@ -7,5 +7,6 @@ class BoxOfBolts < Item
   def feed(robot)
     robot.heal(20)
   end
+
   
 end
