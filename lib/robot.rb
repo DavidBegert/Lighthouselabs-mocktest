@@ -1,5 +1,5 @@
 class Robot
-  attr_reader :position, :items, :health
+  attr_reader :position, :items, :health, :shield
   attr_accessor :equipped_weapon
 
   def initialize
@@ -7,6 +7,7 @@ class Robot
     @items = []
     @health = 100
     @equipped_weapon = nil
+    @shield = 50
   end
 
   def move_left
@@ -30,7 +31,7 @@ class Robot
       item.feed(self)
     else
       if items_weight + item.weight <= 250
-        @equipped_weapon = item if item.is_a?(Weapon)
+        self.equipped_weapon = item if item.is_a?(Weapon)
         @items << item
       end
     end
@@ -43,15 +44,21 @@ class Robot
   end
 
   def wound(dmg)
-    if health - dmg > 0
-      @health -= dmg
-    else
-      @health = 0
+    if shield > dmg 
+      @shield -= dmg
+    else #shield <= dmg
+      leftover_dmg = dmg - shield
+      @shield = 0
+      if health - leftover_dmg > 0
+        @health -= leftover_dmg
+      else
+        @health = 0
+      end
     end
-  end 
+  end
 
   def heal(amount)
-    if @health + amount < 100
+    if health + amount < 100
       @health += amount
     else
       @health = 100
@@ -60,7 +67,7 @@ class Robot
 
   def heal!(amount)
     raise RobotAlreadyDeadError if health == 0
-    if @health + amount < 100
+    if health + amount < 100
       @health += amount
     else
       @health = 100
@@ -88,7 +95,7 @@ class Robot
     if nearbyx?(enemy_robot) || nearbyy?(enemy_robot)
       if equipped_weapon.is_a?(Weapon)      #could just be equipped_weapon but this is clearer
         equipped_weapon.hit(enemy_robot)
-        @equipped_weapon = nil
+        self.equipped_weapon = nil
       else
         enemy_robot.wound(5)
       end
