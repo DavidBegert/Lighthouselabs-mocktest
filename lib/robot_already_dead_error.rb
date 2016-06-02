@@ -1,0 +1,3 @@
+class RobotAlreadyDeadError < StandardError
+
+end
