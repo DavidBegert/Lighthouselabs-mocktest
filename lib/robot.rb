@@ -24,6 +24,11 @@ class Robot
         robot.position == [x,y]
       end
     end
+
+    def reset_robots
+      @@robots = []
+    end
+
   end
   
 

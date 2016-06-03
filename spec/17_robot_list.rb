@@ -3,6 +3,7 @@ require_relative 'spec_helper'
 
 describe Robot do 
   before :each do 
+    Robot.reset_robots
     @robot = Robot.new
   end
 

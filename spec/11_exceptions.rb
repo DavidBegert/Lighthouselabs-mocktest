@@ -8,12 +8,12 @@ describe Robot do
 
   describe "#heal!" do
     it "should raise an error if hp is 0" do
-      @robot.wound(100)
+      @robot.wound(150)
       expect { @robot.heal!(100) }.to raise_error(RobotAlreadyDeadError)
     end
 
     it "should still heal if hp is above 0" do
-      @robot.wound(80)
+      @robot.wound(130)
       @robot.heal!(60)
       expect(@robot.health).to eq(80)
     end
